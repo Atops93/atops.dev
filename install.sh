@@ -267,83 +267,6 @@ EOF
 	sed 's/#Color/Color/' -i /etc/pacman.conf
 	sed 's/#ParallelDownloads = 5/ParallelDownloads = 25/' -i /etc/pacman.conf
 
-	until [ "$useCache" = "y" ] || [ "$useCache" = "n" ]; do
-		echo -n "Are you on the LAN and would like to use the package caching server? (y/n)"; read -r useCache
-	done
-	
-	until [ "$useTesting" = "y" ] || [ "$useTesting" = "n" ]; do
-		echo -n "Would you like to use the testing repos? (y/n)"; read -r useTesting
-	done
-
-	if [ "$useCache" = "y" ]; then
-		# could resolved
-		rm /etc/resolv.conf
-		cat << EOF > /etc/resolv.conf
-search shack.techflash.wtf
-nameserver 172.16.5.254
-EOF
-	fi
-
-	# FAST PATH!  If both are no, don't modify the file at all!
-	if [ "$useCache" = "y" ] || [ "$useTesting" = "y" ]; then
-		# remove all lines after and including the line that maches '[core-testing]'.
-		if [ "$useCache" = "y" ]; then
-			# If the user wanted testing repos, we modify it after this.
-			sed -n '/\[core-testing\]/q;p' -i /etc/pacman.conf
-			cat << EOF >> /etc/pacman.conf
-#[core-testing]
-#Server = http://arch:9129/repo/archlinux/\$repo/os/\$arch
-
-[core]
-Server = http://arch:9129/repo/archlinux/\$repo/os/\$arch
-
-#[extra-testing]
-#Server = http://arch:9129/repo/archlinux/\$repo/os/\$arch
-
-[extra]
-Server = http://arch:9129/repo/archlinux/\$repo/os/\$arch
-EOF
-		fi
-
-		if [ "$useTesting" = "y" ]; then
-			# It's ugly, but it works
-			cp /etc/pacman.conf file.txt
-			perl -p -e 's/#\[core-testing\]\n/[core-testing]\n/' file.txt > file2.txt
-			sed 's/#Server/Server/' -i file2.txt
-			sed 's/#Include/Include/' -i file2.txt
-			mv file2.txt file.txt
-
-			perl -p -e 's/#\[extra-testing\]\n/[extra-testing]\n/' file.txt > file2.txt
-			sed 's/#Server/Server/' -i file2.txt
-			sed 's/#Include/Include/' -i file2.txt
-			# Move it into the original
-			rm file.txt
-			mv file2.txt /etc/pacman.conf
-		fi
-
-
-		if [ "$useCache" = "y" ]; then
-			# add the original footer back, we deleted it before.
-			cat << EOF >> /etc/pacman.conf
-
-# If you want to run 32 bit applications on your x86_64 system,
-# enable the multilib repositories as required here.
-
-#[multilib-testing]
-#Include = /etc/pacman.d/mirrorlist
-
-#[multilib]
-#Include = /etc/pacman.d/mirrorlist
-
-# An example of a custom package repository.  See the pacman manpage for
-# tips on creating your own repositories.
-#[custom]
-#SigLevel = Optional TrustAll
-#Server = file:///home/custompkgs
-EOF
-		fi
-	fi
-
 	echo "pacman.conf set up.  running \`pacstrap'."
 
 	# install core packages
@@ -363,14 +286,14 @@ EOF
 	arch-chroot /mnt hwclock --systohc
 
 	# set up locale.gen
-	sed 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' -i /mnt/etc/locale.gen
-	sed 's/#en_US ISO-8859-1/en_US ISO-8859-1/' -i /mnt/etc/locale.gen
+	sed 's/#en_AU.UTF-8 UTF-8/en_AU.UTF-8 UTF-8/' -i /mnt/etc/locale.gen
+	sed 's/#en_AU ISO-8859-1/en_AU ISO-8859-1/' -i /mnt/etc/locale.gen
 
 	# generate the locales
 	arch-chroot /mnt locale-gen
 
 	# set up the locale config
-	echo 'LANG=en_US.UTF-8' > /mnt/etc/locale.conf
+	echo 'LANG=en_AU.UTF-8' > /mnt/etc/locale.conf
 
 
 	# set the system hostname
