@@ -38,8 +38,9 @@ dots() {
 	sleep 0.25
 }
 echo -e "\e[1;33m======= WARNING!!! =======\e[0m"
-echo "This script will set up your PC exactly like I set up mine."
-echo "If you're not sure about this, please back out now.  I'll give you 5 seconds."
+echo "This script will set up your this machine exactly how I do."
+echo "Make sure you created your partitions before running this script."
+echo "If you're not sure about this, back out now. You have 5 seconds."
 dots "\e[32m5" "."
 dots "4" "."
 dots "\e[1;33m3" "."
@@ -370,8 +371,8 @@ EOF
 		arch-chroot /mnt systemctl enable autosetup
 	fi
 
-	echo "Rebooting.  See ya on the other side!"
-	sleep 5
+	echo "Rebooting."
+	sleep 3
 	reboot
 }
 
@@ -401,19 +402,29 @@ desktopSetup() {
 	if ! [ -d /home/atops ] || [ "$(su - atops -c groups 2>/dev/null | grep users | grep sudo | grep video | grep render)" == "" ]; then
 		useradd -m atops -c Atops -G users,sudo,video,render
 	fi
-	echo "Please enter the password for the new user"
+	echo "enter the password for user atops"
 	passwd atops
 
-	echo "Running dotfiles setup"
+		echo "Running dotfiles setup"
 	su - atops -c "mkdir -p src"
-	chsh -s /bin/zsh atops
 	
-	if ! [ -d /home/atops/src/dotfiles ]; then
-		su - atops -c "git clone https://github.com/techflashYT/dotfiles src/dotfiles"
-	else
-		su - atops -c "cd src/dotfiles; git pull"
+	if ! [ -d /home/atops/src/ato-dwm ]; then
+		su - atops -c "git clone https://github.com/atops93/ato-dwm src/ato-dwm"
+#	else
+#		su - atops -c "cd src/ato-dwm; git pull"
 	fi
-	su - atops -c "cd src/dotfiles; ./install.sh"
+	su - atops -c "cd src/ato-dwm; ./install.sh"
+
+#	echo "Running dotfiles setup"
+#	su - atops -c "mkdir -p src"
+#	chsh -s /bin/zsh atops
+#	
+#	if ! [ -d /home/atops/src/dotfiles ]; then
+#		su - atops -c "git clone https://github.com/techflashYT/dotfiles src/dotfiles"
+#	else
+#		su - atops -c "cd src/dotfiles; git pull"
+#	fi
+#	su - atops -c "cd src/dotfiles; ./install.sh"
 
 
 	echo "Adding autologin to getty config"
