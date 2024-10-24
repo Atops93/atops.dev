@@ -271,7 +271,7 @@ EOF
 	echo "pacman.conf set up.  running \`pacstrap'."
 
 	# install core packages
-	pacstrap -K /mnt base linux linux-firmware grub
+	pacstrap -K /mnt base linux linux-firmware grub btrfs-progs
 
 	# copy our pacman config over
 	cp /etc/pacman.conf /mnt/etc/pacman.conf
@@ -443,14 +443,27 @@ serverSetup() {
 }
 mainSetup() {
 	export TERM=linux
-	echo "Checking networking config..."
-	until cat /etc/NetworkManager/system-connections/* | grep '172\.16\.5\.254'; do
-		echo "No DNS set up.  Go fix it yourself"
-		sleep 2
-		nmtui
-		echo "Restarting NetworkManager"
-		systemctl restart NetworkManager
-	done
+
+		netinterface
+		netinterface() {
+        while true; do
+                read -rp "Are you using wireless or wired? (y/n): " networkinterface1
+                case $networkinterface1 in
+                        y|Y)
+                                nmtui
+                                systemctl restart NetworkManager
+                                break
+                                ;;
+                        n|N)
+                                echo "No network setup is required as you choose wired."
+                                break
+                                ;;
+                        *)
+                                echo "Invalid input, please enter 'y' or 'n'."
+                                ;;
+                esac
+        done
+}
 
 	echo -e "\n\e[0mInstalling..."
 	if [ "$(id -u)" != "0" ]; then
