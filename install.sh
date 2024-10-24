@@ -465,14 +465,12 @@ serverSetup() {
 }
 mainSetup() {
 	export TERM=linux
-
-		netinterface
-		netinterface() {
         while true; do
                 read -rp "Are you using wireless or wired? (y/n): " networkinterface1
                 case $networkinterface1 in
                         y|Y)
                                 nmtui
+								sleep 15
                                 systemctl restart NetworkManager
                                 break
                                 ;;
@@ -485,7 +483,6 @@ mainSetup() {
                                 ;;
                 esac
         done
-}
 
 	echo -e "\n\e[0mInstalling..."
 	if [ "$(id -u)" != "0" ]; then
