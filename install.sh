@@ -268,10 +268,32 @@ EOF
 	sed 's/#Color/Color/' -i /etc/pacman.conf
 	sed 's/#ParallelDownloads = 5/ParallelDownloads = 25/' -i /etc/pacman.conf
 
+	echo "Setting up MY mirrors."
+setupMirrors
+
+setupMirrors() {
+    echo "Setting up mirrors for Australia..."
+
+    # Backup the current mirrorlist
+    cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+
+    # Fetch Australian mirrors, uncomment them, and rank by speed
+    curl -s "https://archlinux.org/mirrorlist/?country=AU&protocol=http&protocol=https&ip_version=4" |
+        sed -e 's/^#Server/Server/' -e '/^#/d' > /etc/pacman.d/mirrorlist
+
+    # Optionally rank mirrors by speed
+    if command -v rankmirrors > /dev/null; then
+        echo "Ranking the mirrors by speed..."
+        rankmirrors -n 5 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
+    fi
+
+    echo "Mirrors setup complete!"
+}
+
 	echo "pacman.conf set up.  running \`pacstrap'."
 
 	# install core packages
-	pacstrap -K /mnt base linux linux-firmware grub btrfs-progs
+	pacstrap -K /mnt base linux linux-firmware grub btrfs-progs neovim
 
 	# copy our pacman config over
 	cp /etc/pacman.conf /mnt/etc/pacman.conf
