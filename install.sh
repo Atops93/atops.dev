@@ -411,24 +411,9 @@ desktopSetup() {
 	
 	if ! [ -d /home/atops/src/ato-dwm ]; then
 		su - atops -c "git clone https://github.com/atops93/ato-dwm src/ato-dwm"
-#	else
-#		su - atops -c "cd src/ato-dwm; git pull"
 	fi
 	su - atops -c "cd src/ato-dwm; ./install.sh"
 
-#	echo "Running dotfiles setup"
-#	su - atops -c "mkdir -p src"
-#	chsh -s /bin/zsh atops
-#	
-#	if ! [ -d /home/atops/src/dotfiles ]; then
-#		su - atops -c "git clone https://github.com/techflashYT/dotfiles src/dotfiles"
-#	else
-#		su - atops -c "cd src/dotfiles; git pull"
-#	fi
-#	su - atops -c "cd src/dotfiles; ./install.sh"
-
-
-	echo "Adding autologin to getty config"
 	mkdir -p /etc/systemd/system/getty@tty1.service.d
 	cat << EOF > /etc/systemd/system/getty@tty1.service.d/autologin.conf
 [Service]
@@ -445,7 +430,7 @@ serverSetup() {
 mainSetup() {
 	export TERM=linux
         while true; do
-                read -rp "Are you using wired or wireless? (y/n): " networkinterface1
+                read -rp "Would you like to setup a wireless network? (y/n): " networkinterface1
                 case $networkinterface1 in
                         y|Y)
                                 nmtui
