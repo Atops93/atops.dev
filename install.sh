@@ -268,11 +268,7 @@ EOF
 	sed 's/#Color/Color/' -i /etc/pacman.conf
 	sed 's/#ParallelDownloads = 5/ParallelDownloads = 25/' -i /etc/pacman.conf
 
-	echo "Setting up MY mirrors."
-setupMirrors
-
-setupMirrors() {
-    echo "Setting up mirrors for Australia..."
+    echo "Setting up mirrors for Australia"
 
     # Backup the current mirrorlist
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
@@ -287,42 +283,28 @@ setupMirrors() {
         rankmirrors -n 5 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
     fi
 
-    echo "Mirrors setup complete!"
-}
-
 	echo "pacman.conf set up.  running \`pacstrap'."
 
-	# install core packages
 	pacstrap -K /mnt base linux linux-firmware grub btrfs-progs neovim
 
 	# copy our pacman config over
 	cp /etc/pacman.conf /mnt/etc/pacman.conf
 
-	# make an fstab
 	genfstab /mnt >> /mnt/etc/fstab
 
-
-	# set the timezone
 	ln -sf /usr/share/zoneinfo/Australia/Adelaide /mnt/etc/localtime
 	
-	# set the clock
 	arch-chroot /mnt hwclock --systohc
 
-	# set up locale.gen
 	sed 's/#en_AU.UTF-8 UTF-8/en_AU.UTF-8 UTF-8/' -i /mnt/etc/locale.gen
 	sed 's/#en_AU ISO-8859-1/en_AU ISO-8859-1/' -i /mnt/etc/locale.gen
 
-	# generate the locales
 	arch-chroot /mnt locale-gen
 
-	# set up the locale config
 	echo 'LANG=en_AU.UTF-8' > /mnt/etc/locale.conf
-
-
-	# set the system hostname
 	
 	if [ "$hostname" = "" ]; then
-		echo -n "enter the hostname: "; read -r hostname
+		echo -n "enter hostname: "; read -r hostname
 	fi
 	echo "$hostname" > /mnt/etc/hostname
 
@@ -344,13 +326,11 @@ setupMirrors() {
 		echo "Set the root password you clown"
 	done
 
-	echo "Installing GRUB to the disk of the RootFS."
 	if [ "$uefi" = "true" ]; then
-		echo "installing efibootmgr"
 		arch-chroot /mnt pacman -S --noconfirm --needed efibootmgr
 		echo "installing grub"
 		if ! arch-chroot /mnt grub-install --efi-directory=/boot/efi; then
-			echo "ERROR: grub-install failed!  The error should be above."
+			echo "grub-install failed! The error should be above."
 			sleep 30
 		fi
 
@@ -362,18 +342,17 @@ setupMirrors() {
 			
 	arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
-	echo "Installing NetworkManager for networking after bootup."
+	echo "Installing NetworkManager for network on boot."
 	arch-chroot /mnt pacman -S networkmanager --noconfirm --needed
 
-	echo "Enabling NetworkManager and disabling systemd-networkd and resolved."
+	echo "Enabling NetworkManager, disabling systemd-networkd & resolved."
 	arch-chroot /mnt systemctl disable systemd-networkd
 	arch-chroot /mnt systemctl disable systemd-resolved
 	arch-chroot /mnt systemctl enable NetworkManager
 
-	echo "Installing ourselves into the installed system so that we can run through a little bit more setup after a reboot."
+	echo "Adding setup script to run stuff like adding user etc after a reboot."
 	cp "$ourself" /mnt/autosetup.sh
 
-	# just in case
 	chmod +x /mnt/autosetup.sh
 
 	cat << EOF > /mnt/etc/systemd/system/autosetup.service
@@ -385,7 +364,7 @@ ExecStart=/autosetup.sh --rm
 WantedBy=default.target
 EOF
 	until [ "$autostart" = "y" ] || [ "$autostart" = "n" ]; do
-		echo -n "If you will not have networking by default on boot (Wi-Fi), it would be unwise to start the remainder of the setup automatically.  Would you like it to start automatically after reboot?  (y/n)"
+		echo -n "Wifi will not have network by default on boot, it would be unwise to start the remainder of the setup automatically.  Would you like it to start automatically after reboot?  (y/n)"
 		read -r autostart
 	done
 	
@@ -413,7 +392,7 @@ desktopSetup() {
 	pacman -S --noconfirm --needed sudo base-devel \
 	pipewire pipewire-pulse pavucontrol
 	
-	echo "Adding user and sudo setup"
+	echo "Adding user & sudo setup"
 	
 	if ! grep sudo /etc/group; then
 		groupadd -r sudo
@@ -466,7 +445,7 @@ serverSetup() {
 mainSetup() {
 	export TERM=linux
         while true; do
-                read -rp "Are you using wireless or wired? (y/n): " networkinterface1
+                read -rp "Are you using wired or wireless? (y/n): " networkinterface1
                 case $networkinterface1 in
                         y|Y)
                                 nmtui
@@ -479,7 +458,7 @@ mainSetup() {
                                 break
                                 ;;
                         *)
-                                echo "Invalid input, please enter 'y' or 'n'."
+                                echo "Invalid input, enter 'y' or 'n'."
                                 ;;
                 esac
         done
@@ -493,11 +472,11 @@ mainSetup() {
 	until [ "$setuptype" = "desktop" ] || [ "$setuptype" = "server" ]; do
 		echo -n "Setup type?  \"desktop\" or \"server\": "; read -r setuptype
 	done
-	echo "Installing packages..."
+	echo "Installing packages"
 	pacman -S --needed --noconfirm git rsync htop
 	"${setuptype}"Setup
 
-	echo "DONE!  Restarting getty in 5 seconds!"
+	echo "DONE! Restarting getty in 5 seconds."
 	sleep 5
 
 	systemctl disable autosetup
