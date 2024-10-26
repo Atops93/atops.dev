@@ -278,16 +278,13 @@ EOF
         sed -e 's/^#Server/Server/' -e '/^#/d' > /etc/pacman.d/mirrorlist
 
     # Optionally rank mirrors by speed
-    if command -v rankmirrors > /dev/null; then
-        echo "Ranking the mirrors by speed..."
-        rankmirrors -n 5 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
-    fi
-
-	echo "pacman.conf set up.  running \`pacstrap'."
+#    if command -v rankmirrors > /dev/null; then
+#        echo "Ranking the mirrors by speed..."
+#        rankmirrors -n 5 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
+#    fi
 
 	pacstrap -K /mnt base linux linux-firmware grub btrfs-progs neovim
 
-	# copy our pacman config over
 	cp /etc/pacman.conf /mnt/etc/pacman.conf
 
 	genfstab /mnt >> /mnt/etc/fstab
@@ -328,7 +325,6 @@ EOF
 
 	if [ "$uefi" = "true" ]; then
 		arch-chroot /mnt pacman -S --noconfirm --needed efibootmgr
-		echo "installing grub"
 		if ! arch-chroot /mnt grub-install --efi-directory=/boot/efi; then
 			echo "grub-install failed! The error should be above."
 			sleep 30
@@ -342,7 +338,6 @@ EOF
 			
 	arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
-	echo "Installing NetworkManager for network on boot."
 	arch-chroot /mnt pacman -S networkmanager --noconfirm --needed
 
 	echo "Enabling NetworkManager, disabling systemd-networkd & resolved."
@@ -364,7 +359,7 @@ ExecStart=/autosetup.sh --rm
 WantedBy=default.target
 EOF
 	until [ "$autostart" = "y" ] || [ "$autostart" = "n" ]; do
-		echo -n "Wifi will not have network by default on boot, it would be unwise to start the remainder of the setup automatically.  Would you like it to start automatically after reboot?  (y/n)"
+		echo -n "Press 'y' to reboot. Press ctrl + C if you want to add anything after reboot?"
 		read -r autostart
 	done
 	
@@ -373,7 +368,7 @@ EOF
 	fi
 
 	echo "Rebooting."
-	sleep 3
+	sleep 2
 	reboot
 }
 
@@ -392,7 +387,7 @@ desktopSetup() {
 	pacman -S --noconfirm --needed sudo base-devel \
 	pipewire pipewire-pulse pavucontrol
 	
-	echo "Adding user & sudo setup"
+	echo "Adding user atops with sudo"
 	
 	if ! grep sudo /etc/group; then
 		groupadd -r sudo
@@ -407,12 +402,12 @@ desktopSetup() {
 	passwd atops
 
 		echo "Running dotfiles setup"
-	su - atops -c "mkdir -p src"
+	su - atops -c "mkdir -p git-repos"
 	
-	if ! [ -d /home/atops/src/ato-dwm ]; then
-		su - atops -c "git clone https://github.com/atops93/ato-dwm src/ato-dwm"
+	if ! [ -d /home/atops/git-repos/ato-dwm ]; then
+		su - atops -c "git clone https://github.com/atops93/ato-dwm git-repos/ato-dwm"
 	fi
-	su - atops -c "cd src/ato-dwm; ./install.sh"
+	su - atops -c "cd git-repos/ato-dwm; ./install.sh"
 
 	mkdir -p /etc/systemd/system/getty@tty1.service.d
 	cat << EOF > /etc/systemd/system/getty@tty1.service.d/autologin.conf
