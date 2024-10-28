@@ -268,14 +268,13 @@ EOF
 	sed 's/#Color/Color/' -i /etc/pacman.conf
 	sed 's/#ParallelDownloads = 5/ParallelDownloads = 25/' -i /etc/pacman.conf
 
-    echo "Setting up mirrors for Australia"
-
+#    echo "Setting up mirrors for Australia"
     # Backup the current mirrorlist
-    cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+#    cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 
     # Fetch Australian mirrors, uncomment them, and rank by speed
-    curl -s "https://archlinux.org/mirrorlist/?country=AU&protocol=http&protocol=https&ip_version=4" |
-        sed -e 's/^#Server/Server/' -e '/^#/d' > /etc/pacman.d/mirrorlist
+#    curl -s "https://archlinux.org/mirrorlist/?country=AU&protocol=http&protocol=https&ip_version=4" |
+#        sed -e 's/^#Server/Server/' -e '/^#/d' > /etc/pacman.d/mirrorlist
 
     # Optionally rank mirrors by speed
 #    if command -v rankmirrors > /dev/null; then
