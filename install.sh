@@ -294,7 +294,7 @@ if command -v rankmirrors > /dev/null; then
     mv /etc/pacman.d/mirrorlist.sorted /etc/pacman.d/mirrorlist
 fi
 
-	pacstrap -K /mnt base linux linux-firmware grub btrfs-progs neovim
+	pacstrap -K /mnt base linux linux-firmware grub btrfs-progs vim
 
 	cp /etc/pacman.conf /mnt/etc/pacman.conf
 
@@ -338,14 +338,14 @@ fi
 		arch-chroot /mnt pacman -S --noconfirm --needed efibootmgr
 		if ! arch-chroot /mnt grub-install --efi-directory=/boot/efi; then
 			echo "grub-install failed! The error should be above."
-			sleep 30
+			sleep 15
 		fi
 
 	else
 		arch-chroot /mnt grub-install $(partToDisk "$rootfs")
 	fi
 	sed 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=1/' -i /mnt/etc/default/grub
-	sed 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet net.ifnames=0 biosdevname=0"/' -i /mnt/etc/default/grub
+	sed 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet net.ifnames=0 biosdevname=0 nowatchdog"/' -i /mnt/etc/default/grub
 			
 	arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
@@ -356,7 +356,7 @@ fi
 	arch-chroot /mnt systemctl disable systemd-resolved
 	arch-chroot /mnt systemctl enable NetworkManager
 
-	echo "Adding setup script to run stuff like adding user etc after a reboot."
+	echo "Adding setup script."
 	cp "$ourself" /mnt/autosetup.sh
 
 	chmod +x /mnt/autosetup.sh
@@ -395,8 +395,7 @@ EOF
 # This is reachable via the variable call
 # shellcheck disable=SC2317
 desktopSetup() {
-	pacman -S --noconfirm --needed sudo base-devel \
-	pipewire pipewire-pulse pavucontrol
+	pacman -S --noconfirm --needed sudo base-devel pipewire pipewire-pulse pavucontrol
 	
 	echo "Adding user atops with sudo"
 	
