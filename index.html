@@ -83,19 +83,44 @@
         ul li {
             margin: 10px 0;
         }
+	#clock {
+    font-family: monospace;
+    font-size: 1.4em;
+    color: #ffffff; /* bright white text */
+    text-align: center;
+    margin-top: 10px;
+	}
     </style>
 </head>
 
 <body>
     <main>
-        <section>
-		<p class="content">Welcome to Atops Dungeon!</p>
-        </section>
-
         <section id="about-me">
             <div>
                 <img src="Sir-Atops.jpg" class="profile-pic">
             </div>
+
+ <section>
+                <p class="content">Welcome to Atops Dungeon!</p>
+        </section>
+
+	<div id="clock"></div>
+<script>
+    function updateClock() {
+        const now = new Date();
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // convert 0 to 12
+        document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
+
         </section>
         <section>
             <h2>Links</h2>
