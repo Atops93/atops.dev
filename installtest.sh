@@ -395,35 +395,69 @@ EOF
 # This is reachable via the variable call
 # shellcheck disable=SC2317
 desktopSetup() {
-	pacman -S --noconfirm --needed sudo base-devel pipewire pipewire-pulse pavucontrol
-	
-	echo "Adding user atops with sudo"
-	
-	if ! grep sudo /etc/group; then
-		groupadd -r sudo
-	fi
-	
-	sed -i 's/# %sudo	ALL=(ALL:ALL) ALL/%sudo	ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers
+    pacman -S --noconfirm --needed sudo base-devel pipewire pipewire-pulse pavucontrol git alacritty
 
-	if ! [ -d /home/atops ] || [ "$(su - atops -c groups 2>/dev/null | grep users | grep sudo | grep video | grep render)" == "" ]; then
-		useradd -m atops -c Atops -G users,sudo,video,render
-	fi
-	echo "enter the password for user atops"
-	passwd atops
+    echo "Adding user atops with sudo"
+    groupadd -r sudo 2>/dev/null || true
+    sed -i 's/# %sudo\tALL=(ALL:ALL) ALL/%sudo\tALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
+    useradd -m atops -G users,sudo,video,render -s /bin/bash || true
+    echo "Set password for atops:"
+    passwd atops
 
-		echo "Running dotfiles setup"
-	su - atops -c "mkdir -p git-repos"
-	
-	if ! [ -d /home/atops/git-repos/ato-dwm ]; then
-		su - atops -c "git clone https://github.com/atops93/ato-dwm git-repos/ato-dwm"
-	fi
-	su - atops -c "cd git-repos/ato-dwm; ./install.sh"
+    # 1) Choose WM/DE
+    echo "Choose your window manager:"
+    echo "  1) DWM"
+    echo "  2) Hyprland"
+    until [[ "$de_choice" =~ ^[12]$ ]]; do
+        read -rp "Enter 1 or 2: " de_choice
+    done
 
-	mkdir -p /etc/systemd/system/getty@tty1.service.d
-	cat << EOF > /etc/systemd/system/getty@tty1.service.d/autologin.conf
+    su - atops -c '
+        mkdir -p ~/git-repos
+        cd ~/git-repos
+        # DWM repo
+        if [ ! -d dwm ]; then
+            git clone https://github.com/atops93/ato-dwm dwm
+        fi
+        # Hyprland config repo
+        if [ ! -d hyprland-config ]; then
+            git clone https://github.com/atops93/ato-hyprland ato-hyprland
+        fi
+    '
+
+    if [ "$de_choice" = "1" ]; then
+        echo "Installing DWM"
+        pacman -S --noconfirm xorg-server xorg-xinit libx11 libxft libxinerama \
+            freetype2 fontconfig ttf-dejavu picom
+        echo "Building DWM from source..."
+        su - atops -c '
+            cd ~/git-repos/ato-dwm
+            make clean install
+        '
+
+        exec_line="exec dwm"
+    else
+        echo "Installing Hyprland"
+        pacman -S --noconfirm hyprland waybar wofi \
+		xdg-desktop-portal-hyprland pipewire wireplumber
+
+        su - atops -c '
+            mkdir -p ~/.config/hypr
+            cp -r ~/git-repos/ato-hyprland/* ~/.config/hypr/
+        '
+        exec_line="exec Hyprland"
+    fi
+
+    # 4) Write .xinitrc and fix ownership
+    echo "$exec_line" > /home/atops/.xinitrc
+    chown atops:atops /home/atops/.xinitrc
+
+    # 5) Auto‑login on TTY1
+    mkdir -p /etc/systemd/system/getty@tty1.service.d
+    cat > /etc/systemd/system/getty@tty1.service.d/autologin.conf <<EOF
 [Service]
 ExecStart=
-ExecStart=-/sbin/agetty -o '-p -f -- \\\\u' --noclear --autologin atops %I \$TERM
+ExecStart=-/sbin/agetty --autologin atops --noclear %I \$TERM
 EOF
 }
 
