@@ -1,136 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Atops Dungeon</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #1A1A1A;
-            color: #EAEAEA;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Arial', sans-serif;
-            overflow: hidden;
-        }
-        a, a:visited {
-            color: #D3D3D3;
-            text-decoration: underline;
-            transition: color 0.3s;
-        }
-        a:hover {
-            color: #FFFFFF;
-        }
-        .content {
-            font-size: 1.2em;
-            text-align: center;
-        }
-        .highlight {
-            color: #FF6F61;
-        }
-        main {
-            width: 100%;
-            max-width: 600px;
-            padding: 20px;
-            background-color: #2C2C2C;
-            border-radius: 30px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-            text-align: center;
-            animation: fadeIn 1s;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        .profile-pic {
-            width: 150px;
-            border-radius: 50%;
-            margin-bottom: 5px;
-            transition: transform 0.3s;
-        }
-        .profile-pic:hover {
-            transform: scale(1.1);
-        }
-        h2 {
-            position: relative;
-            color: #FFFFFF;
-            margin-bottom: 15px;
-        }
-        h2::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background-color: #D3D3D3;
-            top: -8px;
-            left: 0;
-        }
-        #about-me h2::before {
-            display: none;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        ul li {
-            margin: 10px 0;
-        }
-	#clock {
-    font-family: monospace;
-    font-size: 1.4em;
-    color: #ffffff; /* bright white text */
-    text-align: center;
-    margin-top: 10px;
-	}
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atops Dungeon</title>
+  <style>
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    ul li {
+      margin: 10px 0;
+    }
+    #clock {
+      font-family: monospace;
+      font-size: 1.4em;
+      color: #fff; /* shorter for white */
+      text-align: center;
+      margin-top: 10px;
+    }
+    .profile-pic {
+      max-width: 200px; /* optional: keep image size reasonable */
+      border-radius: 8px; /* optional: smooth corners */
+    }
+  </style>
 </head>
-
 <body>
-    <main>
-        <section id="about-me">
-            <div>
-                <img src="Sir-Atops.jpg" class="profile-pic">
-            </div>
+  <main>
+    <section id="about-me">
+      <img src="Sir-Atops.jpg" class="profile-pic" alt="Sir Atops Profile Picture">
+      <div id="clock"></div>
+    </section>
 
- <section>
-                <p class="content">Welcome to Atops Dungeon!</p>
-        </section>
+    <section>
+      <h2>Links</h2>
+      <ul class="content">
+        <li><a href="https://files.atops.dev">Atops Files</a></li>
+        <li><a href="https://github.com/atops93">GitHub</a></li>
+        <li><a href="https://x.com/sir_atops">Twitter</a></li>
+        <li><a href="https://youtube.com/@atops93">YouTube</a></li>
+      </ul>
+    </section>
+  </main>
 
-	<div id="clock"></div>
-<script>
+  <script>
     function updateClock() {
-        const now = new Date();
-        let hours = now.getHours();
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const seconds = now.getSeconds().toString().padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12;
-        hours = hours ? hours : 12; // convert 0 to 12
-        document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12; // converts 0 to 12
+      document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
     }
 
     setInterval(updateClock, 1000);
     updateClock();
-</script>
-
-        </section>
-        <section>
-            <h2>Links</h2>
-            <ul class="content">
-		<li><a href="https://files.atops.dev">Atops Files</a></li>
-                <li><a href="https://github.com/atops93">Github</a></li>
-                <li><a href="https://x.com/sir_atops">Twitter</a></li>
-                <li><a href="https://youtube.com/@atops93">Youtube</a></li>
-            </ul>
-        </section>
-    </main>
+  </script>
 </body>
 </html>
