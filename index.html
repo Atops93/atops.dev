@@ -1,62 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Atops Dungeon</title>
-  <style>
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    ul li {
-      margin: 10px 0;
-    }
-    #clock {
-      font-family: monospace;
-      font-size: 1.4em;
-      color: #fff; /* shorter for white */
-      text-align: center;
-      margin-top: 10px;
-    }
-    .profile-pic {
-      max-width: 200px; /* optional: keep image size reasonable */
-      border-radius: 8px; /* optional: smooth corners */
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atops Dungeon</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1C1C1C; /* darker grey background */
+            color: #E0E0E0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        a, a:visited {
+            color: #B0B0B0;
+            text-decoration: underline;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        a:hover {
+            color: #FFFFFF;
+            transform: translateX(3px);
+        }
+
+        main {
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            background-color: #1A1A1A; /* grey box */
+            border-radius: 30px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.7);
+            text-align: center;
+            animation: fadeIn 1s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            object-fit: cover;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .profile-pic:hover {
+            transform: scale(1.05);
+            border-color: #FFFFFF;
+        }
+
+        #clock {
+            font-family: monospace;
+            font-size: 1.5em;
+            color: #B0B0B0;
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            color: #FFFFFF;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        h2::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #B0B0B0;
+            top: -8px;
+            left: 0;
+        }
+
+        #about-me h2::before {
+            display: none;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+    </style>
 </head>
 <body>
-  <main>
-    <section id="about-me">
-      <img src="Sir-Atops.jpg" class="profile-pic" alt="Sir Atops Profile Picture">
-      <div id="clock"></div>
-    </section>
+    <main>
+        <section id="about-me">
+            <img src="Sir-Atops.jpg" class="profile-pic" >
+            <div id="clock"></div>
+        </section>
 
-    <section>
-      <h2>Links</h2>
-      <ul class="content">
-        <li><a href="https://files.atops.dev">Atops Files</a></li>
-        <li><a href="https://github.com/atops93">GitHub</a></li>
-        <li><a href="https://x.com/sir_atops">Twitter</a></li>
-        <li><a href="https://youtube.com/@atops93">YouTube</a></li>
-      </ul>
-    </section>
-  </main>
+        <section>
+            <h2>Links</h2>
+            <ul class="content">
+                <li><a href="https://files.atops.dev">Atops Files</a></li>
+                <li><a href="https://github.com/atops93">GitHub</a></li>
+                <li><a href="https://x.com/sir_atops">Twitter</a></li>
+                <li><a href="https://youtube.com/@atops93">YouTube</a></li>
+            </ul>
+        </section>
+    </main>
 
-  <script>
-    function updateClock() {
-      const now = new Date();
-      let hours = now.getHours();
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      hours = hours % 12 || 12; // converts 0 to 12
-      document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
-    }
+    <script>
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+        }
 
-    setInterval(updateClock, 1000);
-    updateClock();
-  </script>
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
 </body>
 </html>
+
